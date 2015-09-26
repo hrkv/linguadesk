@@ -1,0 +1,16 @@
+extends layout
+
+block content
+    .wall.inWork
+        .top
+            include ./userlink.jade
+            .logo #{boardname}
+        .bottom
+            .menu
+            .words
+                .word.newword
+                    input(type="text" name="newword" placeholder="new word" id="newword")
+                    input(type="button" value="add word" id="addword")
+                each val in words
+                    .word= val.original
+    script(src='/javascripts/func.js')

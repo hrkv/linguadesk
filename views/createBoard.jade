@@ -1,0 +1,15 @@
+extends layout
+
+block content
+    .wall
+        .top
+            include ./userlink
+            .logo create board
+        .bottom
+            .loginform
+                form(method="post")
+                    input(type="text" name="board" placeholder="board name")
+                    select(name="language" placeholder="language")
+                        option(value="eng-rus") english - russian
+                        option(value="rus-eng") russian - english
+                    input(type="submit" value="create")

@@ -1,0 +1,14 @@
+extends layout
+
+block content
+    .wall.inWork
+        .top
+            include ./userlink.jade
+            .logo Boards
+        .bottom
+            .menu
+                a(href="/newboard").menuItem add new board
+            .boards
+                each val in boards
+                    a.board(href="/boards/" + val.name)
+                        .name= val.name + " / " + val.wordsCounter

@@ -1,0 +1,131 @@
+html, body {
+  height: 100%;
+  width: 100;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  color: #212026;
+}
+
+a {
+  text-decoration: none;
+  color: #212026;
+}
+
+::-webkit-input-placeholder {color:#676663;}
+::-moz-placeholder          {color:#676663;}
+:-ms-input-placeholder      {color:#676663;}
+
+.wall {
+  height: 100%;
+  width: 100%;
+}
+
+.wall .top {
+  position: relative;
+  height:35%;
+  width: 100%;
+  background-color: #b8b8bf;
+  box-shadow: 0 0 8px #212026;
+}
+
+.wall.inWork .top {
+  height: 90px;
+}
+
+.wall .bottom {
+  height:65%;
+  width: 100%;
+  background-color: #676673;
+}
+
+.wall.inWork .bottom {
+  height: 100%;
+}
+
+.logo {
+  position: absolute;
+  bottom: -12pt;
+  font-size: 60pt;
+  padding-left: 30px;
+}
+
+.loginform {
+  margin: auto;
+  padding: 20px;
+  width: 300px;
+}
+
+input,
+select {
+  display: block;
+  width: 100%;
+  float: right;
+  background-color: #b8b8bf;
+  color: #383840;
+  font-size: 18pt;
+  border: none;
+  outline: none;
+  padding: 2pt 4pt;
+  box-sizing: border-box;
+}
+
+input[type=submit],
+input[type=button] {
+  width: auto;
+  cursor: pointer;
+}
+
+input[type=submit]:active,
+input[type=button]:active {
+  color: #212026;
+}
+
+.wall .menu {
+  font-size: 16pt;
+  padding-left: 35px;
+  padding-top: 5px;
+}
+
+.wall .menu .menuItem {
+  cursor: pointer;
+  color: #f2f2f2;
+}
+
+.userlink {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  text-align: right;
+}
+
+.userlink .login{
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.boards {
+  padding-top: 10px;
+  padding-left: 50px;
+}
+
+.board {
+  cursor: pointer;
+}
+
+.board .name {
+  font-size: 26pt;
+}
+
+.words {
+  width: 60%;
+  margin: auto;
+}
+
+.word {
+  overflow: auto;
+}

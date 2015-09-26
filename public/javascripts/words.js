@@ -1,0 +1,10 @@
+var words = ["curious", "traction", "unavoidable", "sheer", "compelling", "frankly", "boost",
+             "interfacing", "assumption", "apparent", "tax", "stand", "complementary", "intentionally",
+             "uncomplicated", "grab", "akin", "huge", "bring", "regard", "tackle", "conventional", "assumes",
+             "assign", "deliberately", "bare-bones", "simultaneously", "poll", "reliant", "leverage",
+             "fallback", "plunge", "preliminary", "depict", "rough", "fleshing out", "establish",
+             "habit", "straightforward", "bundle", "capable", "populate", "arbitrary", "prompt",
+             "usefulness", "invoke", "verbosity", "attempt", "derive", "malicious", "nasty",
+             "sanitize", "delve", "harness", "grasp", "pitfall", "cluttered", "desire", "responsibility",
+             "remain", "appropriately", "offer", "alter", "fame", "layman", "unmanned", "regale", "Suffice",
+             "strangling", "thruster", "exploration", "redundancy", "cowling", "chute", ""];

@@ -1,0 +1,12 @@
+extends layout
+
+block content
+    .wall
+        .top
+            .logo #{title}
+        .bottom
+            .loginform
+                form(method="post" action="/signin")
+                    input(type="text" name="username" placeholder="login / email")
+                    input(type="password" name="password" placeholder="password")
+                    input(type="submit" value="sign in/up")
