@@ -44,6 +44,7 @@ app.post('/signin', passport.authenticate('signin', {
   failureRedirect: '/'
 }));
 app.use('/boards', isAuth, require('./routes/boards')(Boards));
+app.use('/api', isAuth, require('./routes/api')(Boards));
 app.use('/newboard', isAuth, require('./routes/newboard'));
 
 // catch 404 and forward to error handler

@@ -1,5 +1,6 @@
 var db = require('../models/database');
 var Users = require('../models/Users');
+var Words = require('../models/Words')(db);
 
 function Board(settings) {
     this.id = settings.id;
@@ -16,44 +17,15 @@ Board.prototype.getName = function() {
 };
 
 Board.prototype.getWords = function(next) {
-    db.get({
-        sql: "select * from words where boardid=($1)",
-        parameters: [this.id]
-    }, function(err, result){
-        if (err) {
-            return next(err, []);
-        } else {
-            return next(null, result || []);
-        }
-    });
+    Words.getAll(this.id, next);
 };
 
 Board.prototype.addWord = function(word, next) {
-    var boardId = this.id;
-    
-    db.get({
-        sql: "select * from words where boardid=($1) and original=($2)",
-        parameters: [this.id, word],
-        uniq: true
-    }, function(err, result) {
-        console.log("word in table: " + JSON.stringify(result));
-        if (err) {
-            return next(err, null);
-        } else if (!result) {
-            db.put({
-                sql: "insert into words (boardid, original) values($1, $2)",
-                parameters: [boardId, word]
-            }, function(err, result) {
-                if (err) {
-                    return next(err, null);
-                } else {
-                    return next(null, true);
-                }
-            });
-        } else {
-            next(null, false);
-        }
-    });
+    Words.add(word, this.id, next);
+};
+
+Board.prototype.addTranslate = function (word, translate, next) {
+    Words.addTranslate(word, translate, this.id, next);    
 };
 
 module.exports = {

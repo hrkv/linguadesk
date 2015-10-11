@@ -18,7 +18,7 @@ module.exports = function(Boards) {
     });
   });
   
-  router.get('/*', function(req, res, next) {
+  router.get('/*', function (req, res, next) {
     Boards.getBoard(req.user.getName(), decodeURIComponent(req.url).substr(1), function(err, board){
         if (err) {
             return res.render('boards', {
@@ -37,22 +37,6 @@ module.exports = function(Boards) {
             });
         } else {
             return res.redirect('/boards');
-        }
-    });
-  });
-  
-  router.post('/addword', function(req, res, next) {
-    Boards.getBoard(req.user.getName(), req.session.currentBoard, function(err, board){
-        if (err) {
-            return res.json({error: err});
-        } else if (board) {
-            board.addWord(req.body.newword, function(err, words) {
-                if (err) {
-                    res.json({error: err});
-                } else {
-                    res.json({result: true});
-                }
-            });
         }
     });
   });
