@@ -28,6 +28,14 @@ Board.prototype.addTranslate = function (word, translate, next) {
     Words.addTranslate(word, translate, this.id, next);    
 };
 
+Board.prototype.updateTranslate = function (word, oldTranslate, newTranslate, next) {
+    Words.updateTranslate(word, oldTranslate, newTranslate, this.id, next);    
+};
+
+Board.prototype.deleteTranslate = function (word, translate, next) {
+    Words.deleteTranslate(word, translate, this.id, next);    
+};
+
 module.exports = {
     addBoard: function(username, boardname, originLanguage, translateLanguage, next) {
         if (Users.checkCachedUsers(username)) {

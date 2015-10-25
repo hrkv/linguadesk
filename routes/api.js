@@ -32,6 +32,38 @@ module.exports = function (Boards) {
             }
         });
     });
+    
+    router.post('/boards/words/updatetranslate', function (req, res, next) {
+        Boards.getBoard(req.user.getName(), req.session.currentBoard, function(err, board){
+            if (err) {
+                return res.json({error: err});
+            } else if (board) {
+                board.updateTranslate(req.body.word, req.body.oldtranslate, req.body.newtranslate, function(err, words) {
+                    if (err) {
+                        res.json({error: err});
+                    } else {
+                        res.json({result: true});
+                    }
+                });
+            }
+        });
+    });
+    
+    router.delete('/boards/words/deletetranslate', function (req, res, next) {
+        Boards.getBoard(req.user.getName(), req.session.currentBoard, function(err, board){
+            if (err) {
+                return res.json({error: err});
+            } else if (board) {
+                board.deleteTranslate(req.body.word, req.body.translate, function(err, words) {
+                    if (err) {
+                        res.json({error: err});
+                    } else {
+                        res.json({result: true});
+                    }
+                });
+            }
+        });
+    });
   
     router.post('/boards/words/getall', function (req, res, next) {
         Boards.getBoard(req.user.getName(), req.session.currentBoard, function(err, board){

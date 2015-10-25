@@ -9,7 +9,13 @@ block content
             .bottomcontent
                 .menu
                 .words
-                    .word.newword
+                    .filter
+                        select
+                            option Всё
+                            option С переводом
+                            option Без перевода
+                    .newword
                         input(type="text" name="newword" placeholder="new word" id="newword")
                         input(type="button" value="add word" id="addword")
+    script(src='/javascripts/jquery.min.js')
     script(src='/javascripts/func.js')

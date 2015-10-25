@@ -44,7 +44,7 @@ a {
 .wall .bottom {
   height:65%;
   width: 100%;
-  background-color: #C0BA96;
+  background-image: url("/images/cardboard-texture.jpg");
 }
 
 .wall.inWork .bottom {
@@ -160,6 +160,7 @@ input[type=button]:active {
   font-size: 14pt;
   padding-left: 5px;
   margin-top: 5px;
+  margin-left: 15px;
   border-left: 1px solid olivedrab;
 }
 
@@ -173,7 +174,7 @@ input[type=button]:active {
   margin-bottom: 3px;
 }
 
-.translateContainer .translate:hover .actionButton,
+.translateContainer .translateListItem:hover .actionButton,
 .word .actionButton.active {
   visibility: visible;
 }

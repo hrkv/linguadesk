@@ -54,6 +54,64 @@ module.exports = function (db)
                 }
             });
         },
+        updateTranslate: function (word, oldTranslate, newTranslate, id, next) {
+            db.get({
+                sql: "select translate from words where boardid=($1) and original=($2)",
+                parameters: [id, word],
+                uniq: true
+            }, function(err, result) {
+                if (err) {
+                    return next(err, null);
+                } else {
+                    result = result && result.translate || [];
+                    var index = result.indexOf(oldTranslate);
+                    if (index !== -1) {
+                        result[index] = newTranslate;
+                        db.put({
+                            sql: "update words set translate=($1) where boardid=($2) and original=($3)",
+                            parameters: [result, id, word]
+                        }, function(err, result) {
+                            if (err) {
+                                return next(err, null);
+                            } else {
+                                return next(null, true);
+                            }
+                        });
+                    } else {
+                        return (null, false);
+                    }
+                }
+            });
+        },
+        deleteTranslate: function (word, translate, id, next) {
+            db.get({
+                sql: "select translate from words where boardid=($1) and original=($2)",
+                parameters: [id, word],
+                uniq: true
+            }, function(err, result) {
+                if (err) {
+                    return next(err, null);
+                } else {
+                    result = result && result.translate || [];
+                    var index = result.indexOf(translate);
+                    if (index !== -1) {
+                        result.splice(index, 1);
+                        db.put({
+                            sql: "update words set translate=($1) where boardid=($2) and original=($3)",
+                            parameters: [result, id, word]
+                        }, function(err, result) {
+                            if (err) {
+                                return next(err, null);
+                            } else {
+                                return next(null, true);
+                            }
+                        });
+                    } else {
+                        return (null, false);
+                    }
+                }
+            });
+        },
         getAll: function (id, next) {
             if (!isNaN(id) && isFinite(id)) {
                 db.get({

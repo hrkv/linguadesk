@@ -4,11 +4,15 @@ Linguadesk.locale = "en";
 Linguadesk.Resources = {
     en: {
         "edit": "edit",
+        "save": "save",
+        "cancel": "cancel",
         "delete": "delete",
         "addTranslate": "add translate"
     },
     ru: {
         "edit": "редактировать",
+        "save": "сохранить",
+        "cancel": "отмена",
         "delete": "удалить",
         "addTranslate": "добавить перевод"
     }
@@ -29,62 +33,37 @@ Linguadesk.WordList.prototype.init = function () {
 Linguadesk.WordList.prototype.render = function () {
     if (this.dom) {
         for (var i = 0; i < this.items.length; i++) {
-            this.dom.appendChild(this.items[i].getDom());
+            this.dom.append(this.items[i].getDom());
         }
     }
 };
 
 Linguadesk.WordList.prototype.loadWordList = function (cb) {
-    var xhr = new XMLHttpRequest(),
-        wordList = this.items;
-            
-        xhr.open("POST", '/api/boards/words/getall', true)
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
-        xhr.onreadystatechange = function() {
-            if (this.readyState !== 4) {
-                return;
+    Linguadesk.API.Words.getAll(function(err, data) {
+        if (!err) {
+            for (var i = 0; i < data.words.length; i++) {
+                var newWord = new Linguadesk.Word(data.words[i]);
+                wordList.push(newWord);
             }
-            
-            var answer = JSON.parse(this.responseText);
-            
-            if (!answer.error) {
-                for (var i = 0; i < answer.words.length; i++) {
-                    var newWord = new Linguadesk.Word(answer.words[i]);
-                    wordList.push(newWord);
-                }
-                
-                cb && cb(null, newWord);
-            } else {
-                cb && cb(answer.error, null);
+            if (cb) {
+                cb(null, data);
             }
-        };
-        xhr.send();
+        } else if (cb) {
+            cb(err, null)
+        }
+    }.bind(this));
 };
 
 Linguadesk.WordList.prototype.addWord = function (word, cb) {
-    if (word) {
-        var xhr = new XMLHttpRequest(),
-            wordList = this.items;
-            
-        xhr.open("POST", '/api/boards/words/addword', true)
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
-        xhr.onreadystatechange = function() {
-            if (this.readyState !== 4) {
-                return;
-            }
-            
-            var answer = JSON.parse(this.responseText);
-            
-            if (!answer.error) {
-                var newWord = new Linguadesk.Word(answer);
-                wordList.push(newWord);
-                cb(null, newWord);
-            } else {
-                cb(answer.error, null);
-            }
-        };
-        xhr.send('newword=' + word);
-    }
+    Linguadesk.API.Words.add(word, function(err, data) {
+        if (!err) {
+            var newWord = new Linguadesk.Word(answer);
+            this.items.push(newWord);
+            cb(null, newWord);
+        } else {
+            cb(err, null);
+        }
+    });
 }
 
 Linguadesk.Word = function (settings) {
@@ -107,175 +86,141 @@ Linguadesk.Word.prototype.getDom = function () {
 Linguadesk.Word.prototype.init = function () {
     var self = this;
     
-    this.dom = document.createElement("div");
-    this.originalDom = document.createElement("div");
-    this.translateDom = document.createElement("div");
-    this.translateList = document.createElement("div");
-    this.translateVariants = document.createElement("div");
-    this.addTranslateButton = document.createElement("span");
-    this.translateInput = document.createElement("input");
+    this.dom = $("<div>", { class: "word" });
+    this.originalDom = $("<div>", { class: "origin", text: this.original || "" });
+    this.translateDom = $("<div>", { class: "translateContainer hidden" });
+    this.translateList = $("<div>", { class: "translateList"});
+    this.translateVariants = $("<div>", { class: "translateVariants" });
+    this.addTranslateButton = $("<span>", { class: "actionButton active", text: Linguadesk.Resources[Linguadesk.locale].addTranslate });
+    this.translateInput = $("<input>", { class: "translateInput hidden", type: "text" });
     
-    this.dom.classList.add("word");
-    this.translateList.classList.add("translateList");
-    this.originalDom.classList.add("origin");
-    this.translateDom.classList.add("translateContainer");
-    this.translateDom.classList.add("hidden");
-    this.translateVariants.classList.add("translateVariants");
-    this.translateInput.classList.add("translateInput");
-    this.translateInput.classList.add("hidden");
-    
-    this.originalDom.textContent = this.original || "";
     this.updateTranslateList();
-    this.translateInput.setAttribute("type", "text");
-    this.addTranslateButton.classList.add("actionButton");
-    this.addTranslateButton.classList.add("active");
-    this.addTranslateButton.textContent = Linguadesk.Resources[Linguadesk.locale].addTranslate;
     
-    this.originalDom.addEventListener("click", this.onOriginClick.bind(this));
-    this.addTranslateButton.addEventListener("click", this.onTranslateClick.bind(this));
-    this.translateVariants.addEventListener("click", function(event) {
-        var variant = this.querySelector(".translateVariant:hover"),
-            text = variant && variant.querySelector(".text");
-            
-        if (text) {
-            self.translateInput.value = text.textContent;
+    this.translateList.click(this.onTranslateListAction.bind(this));
+    this.originalDom.click(this.onOriginClick.bind(this));
+    this.addTranslateButton.click(this.onTranslateClick.bind(this));
+    this.translateVariants.click(function(event) {
+        var variant = $(".translateVariant:hover .text");
+        if (variant.length) {
+            self.translateInput.val(variant.text());
         }
     });
     
-    var tab = document.createElement("table"),
-        tr = document.createElement("tr"),
-        tdInput = document.createElement("td"),
-        tdButton = document.createElement("td");
-    
-    tab.classList.add("translateTable");
-    tdInput.appendChild(this.translateInput);
-    tdButton.appendChild(this.addTranslateButton);
-    tr.appendChild(tdInput);
-    tr.appendChild(tdButton);
-    tab.appendChild(tr);
-    
-    this.dom.appendChild(this.originalDom);
-    this.translateDom.appendChild(this.translateList);
-    this.translateDom.appendChild(tab);
-    this.translateDom.appendChild(this.translateVariants);
-    this.dom.appendChild(this.translateDom);
+    this.dom
+        .append(this.originalDom)
+        .append(
+            this.translateDom
+                .append(this.translateList)
+                .append(
+                    $("<table>", { class: "translateTable" }).append(
+                        $("<tr>")
+                            .append($("<td>").append(this.translateInput))
+                            .append($("<td>").append(this.addTranslateButton))
+                    )
+                )
+                .append(this.translateVariants)
+        );
 };
 
 Linguadesk.Word.prototype.updateTranslateList = function () {
     this.translateList.innerHTML = "";
     for (var i=0; i<this.translate.length; i++) {
-        var translate = document.createElement("div"),
-            translateText = document.createElement("span"),
-            editButton = document.createElement("span"),
-            deleteButton = document.createElement("span");
-            
-        editButton.textContent = Linguadesk.Resources[Linguadesk.locale].edit;
-        editButton.setAttribute("action", "edit");
-        editButton.classList.add("actionButton");
-        editButton.classList.add("inline");
-        deleteButton.textContent = Linguadesk.Resources[Linguadesk.locale].delete;
-        deleteButton.setAttribute("action", "delete");
-        deleteButton.classList.add("actionButton");
-        deleteButton.classList.add("inline");
-        
-        translate.classList.add("translate");
-        translateText.textContent = this.translate[i];
-        translate.appendChild(translateText);
-        translate.appendChild(editButton);
-        translate.appendChild(deleteButton);
-        this.translateList.appendChild(translate);
+        this.translateList.append(this.createTranslateVariant(this.translate[i]));
     }    
 };
 
-Linguadesk.Word.prototype.addTranslate = function (translate) {
-    var self = this;
-    
-    if (translate) {
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", '/api/boards/words/addtranslate', true)
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
-        xhr.onreadystatechange = function() {
-            if (this.readyState !== 4) {
-                return;
-            }
-            
-            var answer = JSON.parse(this.responseText);
-            if (!answer.error) {
-                self.translate.push(translate);
-                self.updateTranslateList();
-            }
-        };
-        xhr.send('word=' + this.original + '&translate=' + translate);
+Linguadesk.Word.prototype.createTranslateVariant = function (translate, edit) {
+    var textContent = edit ?
+            $("<input>", { type: "text", oldValue: translate, value: translate, class: "translateText translateInput" }) :
+            $("<span>", { text: translate, class: "translateText" }),
+        firstButton = $("<span>", {
+            text: Linguadesk.Resources[Linguadesk.locale][edit ? "save" : "edit"],
+            action: edit ? "save" : "edit",
+            class: "actionButton inline" }),
+        secondButton = $("<span>", {
+            text: Linguadesk.Resources[Linguadesk.locale][edit ? "cancel" : "delete"],
+            action: edit ? "cancel" : "delete",
+            class: "actionButton inline" });
+        
+    return $("<table>", { class: "translateListItem" }).append(
+                $("<tr>").append(
+                    $("<td>").append(textContent)
+                ).append(
+                    $("<td>").append(firstButton)
+                ).append(
+                    $("<td>").append(secondButton)
+                )
+            );
+};
+
+Linguadesk.Word.prototype.onTranslateListAction = function (event) {
+    var button = $(event.target),
+        translateNode = button.closest(".translateListItem"),
+        textNode = translateNode.find(".translateText");
+        
+    switch (button.attr("action")) {
+        case "edit":
+            translateNode.replaceWith(this.createTranslateVariant(textNode.text(), true));
+            break;
+        case "delete":
+            Linguadesk.API.Words.Translate.delete(this.original, textNode.text(), function (data) {
+                this.translate.splice(1, this.translate.indexOf(textNode.text()));
+                this.updateTranslateList();
+            }.bind(this))
+            break;
+        case "save":
+            Linguadesk.API.Words.Translate.update(textNode.attr("oldValue"), textNode.val(), function () {
+                translateNode.replaceWith(this.createTranslateVariant(textNode.val()));
+            }.bind(this));
+            break;
+        case "cancel":
+            translateNode.replaceWith(this.createTranslateVariant(textNode.val()));
+            break;
     }
 };
 
 Linguadesk.Word.prototype.onOriginClick = function () {
-    this.translateDom.classList.toggle("hidden");
+    this.translateDom.toggleClass("hidden");
     this._editing = false;
-    this.translateInput.classList.add("hidden");
-    this.addTranslateButton.classList.remove("inline");
-    this.translateVariants.innerHTML = "";
+    this.translateInput.addClass("hidden");
+    this.addTranslateButton.removeClass("inline");
+    this.translateVariants.get(0).innerHTML = "";
 };
-
-Linguadesk.Word.prototype.getYandexTranslateResult = function (direction, word, callback) {
-    
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", "https://translate.yandex.net/api/v1.5/tr.json/translate?" +
-             "key=trnsl.1.1.20151010T223725Z.301f9ec722fe077c.5d4d67f6289d41fea329923b2db57651c3dccfec" +
-             "&text=" + word +
-             "&lang=" + direction, true
-    );
-    xhr.onreadystatechange = function() {
-            if (this.readyState !== 4) {
-                return;
-            }
-            
-            var result = JSON.parse(this.responseText);
-            if (result && result.code == 200) {
-                return callback(result.text);
-            }
-    };
-    xhr.send();
-}
 
 Linguadesk.Word.prototype.onTranslateClick = function () {
     if (!this._editing) {
-        this.getYandexTranslateResult("en-ru", this.original, function(result) {
-            for (var i=0; i<result.length; i++) {
-                if (this.translate.indexOf(result[i]) === -1) {
-                    var translateVariant = document.createElement("span"),
-                        word = document.createElement("span"),
-                        info = document.createElement("span"),
-                        link = document.createElement("a");
-                        
-                    translateVariant.classList.add("translateVariant");
-                    word.classList.add("text");
-                    word.textContent = result[i];
-                    info.textContent = " переведено сервисом";
-                    link.textContent = ' "Яндекс.Переводчик"';
-                    link.setAttribute("href", "http://translate.yandex.ru/");
-                    link.setAttribute("target", "blank");
-                    translateVariant.appendChild(word);
-                    info.appendChild(link);
-                    translateVariant.appendChild(info);
-                    this.translateVariants.appendChild(translateVariant);
-                    newVariants = true;
+        Linguadesk.API.Words.Utils.getTranslateVariant(this.original, "en-ru", function(err, result) {
+            if (!err && result) {
+                for (var i=0; i<result.text.length; i++) {
+                    if (this.translate.indexOf(result.text[i]) === -1) {
+                        this.translateVariants.append(
+                            $("<span>", { class: "translateVariant" })
+                                .append($("<span>", { class: "text", text: result.text[1] }))
+                                .append($("<span>", { text: " переведено сервисом" }))
+                                .append($("<a>", {
+                                    text: ' "Яндекс.Переводчик"',
+                                    href: "http://translate.yandex.ru/",
+                                    target: "blank"
+                                }))
+                        );
+                    }
                 }
             }
         }.bind(this));
         this.translateInput.focus();
     } else {
-        if (this.translateInput.value) {
-            this.addTranslate(this.translateInput.value);
-            this.translateVariants.innerHTML = "";
-        }
+        Linguadesk.API.Words.Translate.add(this.original, this.translateInput.val(), function (data) {
+            this.translate.push(translate);
+            this.updateTranslateList();
+            this.translateVariants.empty();
+        }.bind(this));
     }
     
     this._editing = !this._editing;
-    this.translateInput.classList.toggle("hidden");
-    this.addTranslateButton.classList.toggle("inline");
+    this.translateInput.toggleClass("hidden");
+    this.addTranslateButton.toggleClass("inline");
 };
 
 var wordList = new Linguadesk.WordList({
-        dom: document.querySelector(".words")
+        dom: $(".words")
     });
