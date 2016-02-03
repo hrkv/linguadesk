@@ -1,76 +1,9 @@
-var Linguadesk = {};
-
-Linguadesk.locale = "en";
-Linguadesk.Resources = {
-    en: {
-        "edit": "edit",
-        "save": "save",
-        "cancel": "cancel",
-        "delete": "delete",
-        "addTranslate": "add translate"
-    },
-    ru: {
-        "edit": "редактировать",
-        "save": "сохранить",
-        "cancel": "отмена",
-        "delete": "удалить",
-        "addTranslate": "добавить перевод"
-    }
-}
-
-Linguadesk.WordList = function (settings) {
-    this.dom = settings.dom;
-    this.items = settings.items || [];
-    this.init();
-};
-
-Linguadesk.WordList.prototype.init = function () {
-    this.loadWordList(function() {
-        this.render();
-    }.bind(this));
-};
-
-Linguadesk.WordList.prototype.render = function () {
-    if (this.dom) {
-        for (var i = 0; i < this.items.length; i++) {
-            this.dom.append(this.items[i].getDom());
-        }
-    }
-};
-
-Linguadesk.WordList.prototype.loadWordList = function (cb) {
-    Linguadesk.API.Words.getAll(function(err, data) {
-        if (!err) {
-            for (var i = 0; i < data.words.length; i++) {
-                var newWord = new Linguadesk.Word(data.words[i]);
-                wordList.push(newWord);
-            }
-            if (cb) {
-                cb(null, data);
-            }
-        } else if (cb) {
-            cb(err, null)
-        }
-    }.bind(this));
-};
-
-Linguadesk.WordList.prototype.addWord = function (word, cb) {
-    Linguadesk.API.Words.add(word, function(err, data) {
-        if (!err) {
-            var newWord = new Linguadesk.Word(answer);
-            this.items.push(newWord);
-            cb(null, newWord);
-        } else {
-            cb(err, null);
-        }
-    });
-}
-
 Linguadesk.Word = function (settings) {
     this.id = settings.id;
     this.original = settings.original;
     this.translate = Array.isArray(settings.translate) ? settings.translate : [];
     this.dom = null;
+    this.view = null;
     this.originalDom = null;
     this.translateDom = null;
     
@@ -79,14 +12,14 @@ Linguadesk.Word = function (settings) {
     this.init();
 };
 
-Linguadesk.Word.prototype.getDom = function () {
-    return this.dom;    
+Linguadesk.Word.prototype.getView = function () {
+    return this.view;    
 };
 
 Linguadesk.Word.prototype.init = function () {
     var self = this;
     
-    this.dom = $("<div>", { class: "word" });
+    this.view = $("<div>", { class: "word" });
     this.originalDom = $("<div>", { class: "origin", text: this.original || "" });
     this.translateDom = $("<div>", { class: "translateContainer hidden" });
     this.translateList = $("<div>", { class: "translateList"});
@@ -106,7 +39,7 @@ Linguadesk.Word.prototype.init = function () {
         }
     });
     
-    this.dom
+    this.view
         .append(this.originalDom)
         .append(
             this.translateDom
@@ -184,7 +117,7 @@ Linguadesk.Word.prototype.onOriginClick = function () {
     this._editing = false;
     this.translateInput.addClass("hidden");
     this.addTranslateButton.removeClass("inline");
-    this.translateVariants.get(0).innerHTML = "";
+    this.translateVariants.empty();
 };
 
 Linguadesk.Word.prototype.onTranslateClick = function () {
@@ -220,7 +153,3 @@ Linguadesk.Word.prototype.onTranslateClick = function () {
     this.translateInput.toggleClass("hidden");
     this.addTranslateButton.toggleClass("inline");
 };
-
-var wordList = new Linguadesk.WordList({
-        dom: $(".words")
-    });

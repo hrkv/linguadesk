@@ -1,7 +1,4 @@
-if (!Linguadesk) {
-    Linguadesk = {};
-}
-
+Linguadesk = {};
 Linguadesk.API = {
     Words: {
         add: function (word, cb) {
@@ -9,7 +6,6 @@ Linguadesk.API = {
                 $.post('/api/boards/words/addword', { newword: word })
                 .done(function(data) {
                     if (cb) {
-                        data = JSON.parse(data);
                         cb(data.error, data);
                     }
                 })
@@ -24,7 +20,6 @@ Linguadesk.API = {
             $.post('/api/boards/words/getall')
             .done(function(data) {
                 if (cb) {
-                    data = JSON.parse(data);
                     cb(data.error, data);
                 }
             })
@@ -42,7 +37,9 @@ Linguadesk.API = {
                         translate: translate
                     })
                     .done(function(data) {
-                        cb && cb(JSON.parse(data));
+                        if (cb) {
+                            cb(data);
+                        }
                     });
                 }
             },
@@ -54,7 +51,9 @@ Linguadesk.API = {
                         data: { word: word, translate: translate}
                     })
                     .done(function(data) {
-                        cb && cb(JSON.parse(data));
+                        if (cb) {
+                            cb(data);
+                        }
                     });
                 }
             },
@@ -66,7 +65,9 @@ Linguadesk.API = {
                         newtranslate: newValue
                     })
                     .done(function(data) {
-                        cb && cb(JSON.parse(data));
+                        if (cb) {
+                            cb(data);
+                        }
                     });
                 }
             }
@@ -80,11 +81,29 @@ Linguadesk.API = {
                         lang: direction
                     })
                     .done(function(data) {
-                        data = JSON.parse(data);
-                        cb && cb(data.code !== 200, data);
+                        if (cb) {
+                            cb(data.code !== 200, data);
+                        }
                     });
                 }              
             }
         }
     }    
 };
+Linguadesk.Resources = {
+    en: {
+        "edit": "edit",
+        "save": "save",
+        "cancel": "cancel",
+        "delete": "delete",
+        "addTranslate": "add translate"
+    },
+    ru: {
+        "edit": "редактировать",
+        "save": "сохранить",
+        "cancel": "отмена",
+        "delete": "удалить",
+        "addTranslate": "добавить перевод"
+    }
+};
+Linguadesk.locale = "en";

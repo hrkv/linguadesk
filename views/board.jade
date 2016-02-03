@@ -7,15 +7,9 @@ block content
             .logo #{boardname}
         .bottom
             .bottomcontent
-                .menu
-                .words
-                    .filter
-                        select
-                            option Всё
-                            option С переводом
-                            option Без перевода
-                    .newword
-                        input(type="text" name="newword" placeholder="new word" id="newword")
-                        input(type="button" value="add word" id="addword")
     script(src='/javascripts/jquery.min.js')
-    script(src='/javascripts/func.js')
+    script(src='/javascripts/Linguadesk.API.js')
+    script(src='/javascripts/Linguadesk.WordList.js')
+    script(src='/javascripts/Linguadesk.Word.js')
+    script(src='/javascripts/Linguadesk.Filter.js')
+    script(src='/javascripts/app.js')
